@@ -1,2 +1,4 @@
 feedparser
 playwright
+pywin32
+pycryptodome
