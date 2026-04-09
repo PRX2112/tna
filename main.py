@@ -69,19 +69,15 @@ def post_tweet(tweet_text):
 
         print("Session valid. Opening compose tweet...")
 
-        # Click the compose/tweet button on the home timeline
-        page.click('a[href="/compose/tweet"]', timeout=10000)
-        page.wait_for_timeout(2000)
-
-        # Type the tweet
+        # Type the tweet directly into the inline input on the home feed
         textbox = page.locator('div[data-testid="tweetTextarea_0"]')
-        textbox.wait_for(timeout=10000)
+        textbox.wait_for(timeout=15000)
         textbox.click()
         textbox.type(tweet_text, delay=30)
         page.wait_for_timeout(1000)
 
-        # Click Post button
-        page.click('button[data-testid="tweetButton"]', timeout=10000)
+        # Click the inline Post button
+        page.click('button[data-testid="tweetButtonInline"]', timeout=10000)
         page.wait_for_timeout(3000)
 
         print("Tweet posted successfully!")
