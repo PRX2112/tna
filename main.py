@@ -14,6 +14,8 @@ def format_tweet(articles):
     return tweet[:280]
 
 
+import json
+
 def post_tweet(tweet_text):
     with sync_playwright() as p:
         browser = p.chromium.launch(
@@ -21,14 +23,28 @@ def post_tweet(tweet_text):
             args=["--disable-blink-features=AutomationControlled"],
         )
 
+        # Load auth.json and filter out ANY cookie that has an empty value ("")
+        # Empty cookies (like twid="") cause X.com to get stuck in a redirect loop!
+        try:
+            with open("auth.json", "r") as f:
+                auth_data = json.load(f)
+            # Keep only cookies with actual values
+            valid_cookies = [c for c in auth_data.get("cookies", []) if c.get("value")]
+            auth_data["cookies"] = valid_cookies
+        except Exception as e:
+            print(f"Error loading auth.json: {e}")
+            auth_data = {"cookies": []}
+
         context = browser.new_context(
-            storage_state="auth.json",
             user_agent=(
-                "Mozilla/5.0 (X11; Linux x86_64) "
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                 "AppleWebKit/537.36 (KHTML, like Gecko) "
                 "Chrome/124.0.0.0 Safari/537.36"
             ),
         )
+
+        # Inject the filtered cookies manually
+        context.add_cookies(auth_data["cookies"])
 
         # Patch webdriver detection
         context.add_init_script(
